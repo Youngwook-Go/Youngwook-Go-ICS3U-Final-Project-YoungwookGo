@@ -1,0 +1,8 @@
+# git rm -r --cached . 
+# git add . 
+# git commit -m "removed cached"
+# git push origin main
+
+GBDK/**/*.c
+!GBDK/**/main.c
+!GBDK/**/main?.c
