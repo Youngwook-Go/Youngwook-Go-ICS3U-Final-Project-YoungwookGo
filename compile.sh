@@ -7,10 +7,10 @@
 base_name=$(basename "$1" .c)
 
 # remove old gameboy file from the simulator directory
-rm /workspaces/ics3u-final-project-gbdk-Youngwook-Go/simulator/rom/game.gb
+rm /workspaces/Youngwook-Go-ICS3U-Final-Project-YoungwookGo/simulator/rom/game.gb
 
 # compile to game
 /opt/gbdk/bin/lcc -Wa-l -Wl-m -Wl-j -o $base_name.gb $base_name.c
 
 # move it to the simulator directory
-cp ./$base_name.gb /workspaces/ics3u-final-project-gbdk-Youngwook-Go/simulator/rom/game.gb
+cp ./$base_name.gb /workspaces/Youngwook-Go-ICS3U-Final-Project-YoungwookGo/simulator/rom/game.gb
