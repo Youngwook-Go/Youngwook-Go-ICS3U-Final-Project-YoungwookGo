@@ -7,6 +7,10 @@
 #include <gb/gb.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
+
+#include <time.h>
+#include <types.h>
 
 #include "Game.c"
 #include "Background.c"
@@ -43,12 +47,15 @@ screen_t game() {
     bool aButtonStillPressed = false;
 
     // Keep track of meta sprite position
-    const int FIXED_Y_POSITION_OF_SHIP = 144;
     int shipXPosition = 80;
     int shipYPosition = 72;
     int shipXVelocity = 1;
     int shipYVelocity = 1;
     int shipDicection = 1;
+
+    // Keep track of sprite position
+    int enemyCounter = 0;
+    int missileCounter = 0;
 
     // ========== Background Set Up ===========
     // Set background tile sheet
@@ -123,13 +130,10 @@ screen_t game() {
                     enemies[enemyCounter][2]);
     }
 
-
-        // Create a enemy
-        enemies[0][1] = 80;
-        enemies[0][2] = 72;
-        move_sprite(enemies[0][0],
-                    enemies[0][1],
-                    enemies[0][2]);
+    // Create first enemy
+    enemies[0][1] = 80;
+    enemies[0][2] = 8;
+    move_sprite(enemies[0][0], enemies[0][1], enemies[0][2]);
 
     SHOW_BKG;
     SHOW_SPRITES;
@@ -151,7 +155,26 @@ screen_t game() {
                 shipXPosition = 152;
                 move_meta_sprite(0, 152, shipYPosition);
             } else {
-                scroll_bkg(shipXVelocity, 0);
+                // Scroll the background
+                scroll_bkg(shipXVelocity * 2, 0);
+                // Scroll every enemy
+                for (int enemyCounter = 0; enemyCounter < enemyLimit; enemyCounter++) {
+                    if (enemies[enemyCounter][1] < 255) {
+                        enemies[enemyCounter][1] = enemies[enemyCounter][1] - 1;
+                        move_sprite(enemies[enemyCounter][0],
+                                    enemies[enemyCounter][1],
+                                    enemies[enemyCounter][2]);
+                    }
+                }
+                // Scroll every missile
+                for (int laserCounter = 0; laserCounter < missileLimit; laserCounter++) {
+                    if (missiles[laserCounter][1] < 255) {
+                        missiles[laserCounter][1] = missiles[laserCounter][1] - 1;
+                        move_sprite(missiles[laserCounter][0],
+                                    missiles[laserCounter][1],
+                                    missiles[laserCounter][2]);
+                    }
+                }
             }
         }
 
@@ -166,7 +189,26 @@ screen_t game() {
                 shipXPosition = 8;
                 move_meta_sprite(0, 8, shipYPosition);
             } else {
-                scroll_bkg(-shipXVelocity, 0);
+                // Scroll the background
+                scroll_bkg(-shipXVelocity * 2, 0);
+                // Scroll every enemy
+                for (int enemyCounter = 0; enemyCounter < enemyLimit; enemyCounter++) {
+                    if (enemies[enemyCounter][1] < 255) {
+                        enemies[enemyCounter][1] = enemies[enemyCounter][1] + 1;
+                        move_sprite(enemies[enemyCounter][0],
+                                    enemies[enemyCounter][1],
+                                    enemies[enemyCounter][2]);
+                    }
+                }
+                // Scroll every missile
+                for (int laserCounter = 0; laserCounter < missileLimit; laserCounter++) {
+                    if (missiles[laserCounter][1] < 255) {
+                        missiles[laserCounter][1] = missiles[laserCounter][1] + 1;
+                        move_sprite(missiles[laserCounter][0],
+                                    missiles[laserCounter][1],
+                                    missiles[laserCounter][2]);
+                    }
+                }
             }
         }
 
@@ -180,7 +222,24 @@ screen_t game() {
                 shipYPosition = 22;
                 move_meta_sprite(0, shipXPosition, 22);
             } else {
+                // Scroll the background
                 scroll_bkg(0, -shipYVelocity);
+                // Scroll every enemy
+                for (int enemyCounter = 0; enemyCounter < enemyLimit; enemyCounter++) {
+                    enemies[enemyCounter][2] = enemies[enemyCounter][2] + 1;
+                    move_sprite(enemies[enemyCounter][0],
+                                enemies[enemyCounter][1],
+                                enemies[enemyCounter][2]);
+                }
+                // Scroll every missile
+                for (int laserCounter = 0; laserCounter < missileLimit; laserCounter++) {
+                    if (missiles[laserCounter][1] < 255) {
+                        missiles[laserCounter][2] = missiles[laserCounter][2] + 1;
+                        move_sprite(missiles[laserCounter][0],
+                                    missiles[laserCounter][1],
+                                    missiles[laserCounter][2]);
+                    }
+                }
             }
         }
 
@@ -194,7 +253,26 @@ screen_t game() {
                 shipYPosition = 152;
                 move_meta_sprite(0, shipXPosition, 152);
             } else {
+                // Scroll the background
                 scroll_bkg(0, shipYVelocity);
+                // Scroll every enemy
+                for (int enemyCounter = 0; enemyCounter < enemyLimit; enemyCounter++) {
+                    if (enemies[enemyCounter][1] < 255) {
+                        enemies[enemyCounter][2] = enemies[enemyCounter][2] - 1;
+                        move_sprite(enemies[enemyCounter][0],
+                                    enemies[enemyCounter][1],
+                                    enemies[enemyCounter][2]);
+                    }
+                }
+                // Scroll every missile
+                for (int laserCounter = 0; laserCounter < missileLimit; laserCounter++) {
+                    if (missiles[laserCounter][1] < 255) {
+                        missiles[laserCounter][2] = missiles[laserCounter][2] - 1;
+                        move_sprite(missiles[laserCounter][0],
+                                    missiles[laserCounter][1],
+                                    missiles[laserCounter][2]);
+                    }
+                }
             }
         }
 
@@ -247,6 +325,60 @@ screen_t game() {
                     move_sprite(missiles[laserCounter][0],
                                 missiles[laserCounter][1],
                                 missiles[laserCounter][2]);
+                }
+            }
+        }
+
+        // Keep track the enemy sprite status
+        for (int enemyCounter = 0; enemyCounter < enemyLimit; enemyCounter++) {
+            if (enemies[enemyCounter][1] < 255) {
+                // Move up
+                enemies[enemyCounter][2]++;
+                move_sprite(enemies[enemyCounter][0],
+                            enemies[enemyCounter][1],
+                            enemies[enemyCounter][2]);
+
+                // Check if the enemy is off the screen
+                if (enemies[enemyCounter][2] > 160) {
+                    // Move the enemy off screen
+                    enemies[enemyCounter][1] = 255;
+                    enemies[enemyCounter][2] = 255;
+                    move_sprite(enemies[enemyCounter][0],
+                                enemies[enemyCounter][1],
+                                enemies[enemyCounter][2]);
+                }
+            }
+
+            // Check if the enemy is hit by the missile
+            for (int laserCounter = 0; laserCounter < missileLimit; laserCounter++) {
+                if (missiles[laserCounter][1] < 255) {
+                    if (missiles[laserCounter][1] > enemies[enemyCounter][1] - 8 &&
+                        missiles[laserCounter][1] < enemies[enemyCounter][1] + 8 &&
+                        missiles[laserCounter][2] > enemies[enemyCounter][2] - 8 &&
+                        missiles[laserCounter][2] < enemies[enemyCounter][2] + 8) {
+                        // Move the enemy off screen
+                        enemies[enemyCounter][1] = 255;
+                        enemies[enemyCounter][2] = 255;
+                        move_sprite(enemies[enemyCounter][0],
+                                    enemies[enemyCounter][1],
+                                    enemies[enemyCounter][2]);
+
+                        // Move the missile off screen
+                        missiles[laserCounter][1] = 255;
+                        missiles[laserCounter][2] = 255;
+                        move_sprite(missiles[laserCounter][0],
+                                    missiles[laserCounter][1],
+                                    missiles[laserCounter][2]);
+
+                        // Create new enemy in random position in screen
+                        // Generate random number
+                        int randomXPosition = rand() % 160;
+                        enemies[enemyCounter][1] = randomXPosition;
+                        enemies[enemyCounter][2] = 80;
+                        move_sprite(enemies[enemyCounter][0],
+                                    enemies[enemyCounter][1],
+                                    enemies[enemyCounter][2]);
+                    }
                 }
             }
         }
